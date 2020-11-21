@@ -1,0 +1,115 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Ensure validation is run before prod install
+  hosts: localhost
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  connection: local
+  roles:
+    - { role: validate, tags: validate }
+
+- name: Prepare servers for installation
+  hosts: securedrop
+  environment:
+    LC_ALL: C
+  gather_facts: no
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  become: yes
+  roles:
+    - { role: prepare-servers }
+
+- name: Add FPF apt repository and install base packages.
+  hosts: securedrop
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  pre_tasks:
+    - name: Check if install has been done before
+      stat:
+        path: /var/www/securedrop
+      delegate_to: "{{ groups['securedrop_application_server'][0] }}"
+      register: sd_dir_check
+
+    - name: Include restrict role early when using ssh over localnet
+      include_role:
+        name: restrict-direct-access
+      vars:
+        # Don't wait for tor client auth, might not exist yet
+        fetch_tor_client_auth_configs: false
+      when:
+        - not enable_ssh_over_tor
+        - sd_dir_check.stat.exists
+
+    - include: tasks/transistion_ssh_local.yml
+      when:
+        - not enable_ssh_over_tor
+        - sd_dir_check.stat.exists
+      tags: restrict-direct-access
+  roles:
+    - { role: install-fpf-repo, tags: fpf }
+    - { role: grsecurity, when: grsecurity, tags: [grsec, grsecurity] }
+    - { role: common, tags: common }
+    - { role: tor-hidden-services, tags: tor }
+  become: yes
+
+- name: Configure OSSEC.
+  hosts: securedrop
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: ossec
+      tags: ossec
+  become: yes
+
+- name: Configure mailing utilities.
+  hosts: securedrop_monitor_server
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: postfix
+      tags: postfix
+  become: yes
+
+- name: Configure SecureDrop Application Server.
+  hosts: securedrop_application_server
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - { role: app, tags: app }
+  become: yes
+
+  # This section will put the ssh and iptables rules in place
+  # It will then add any staging exemptions required
+  # at the end of each host section is when the handlers are run.
+  # So iptables will not be reloaded until the exemptions are applied
+  # for production the last task is apply iptables. This will break their
+  # connection. After that point the admin will to proxy traffic over tor.
+- name: Lock down firewall configuration for Application and Monitor Servers.
+  hosts: securedrop
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - { role: restrict-direct-access, tags: [ common, restrict-direct-access ] }
+  become: yes
+
+- name: Reboot Application and Monitor Servers.
+  hosts: securedrop
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: reboot-if-first-install
+  become: yes

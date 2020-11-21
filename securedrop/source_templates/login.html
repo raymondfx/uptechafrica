@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% include 'flashed.html' %}
+
+<h1>{{ gettext('Enter Codename') }}</h1>
+
+<form method="post" action="{{ url_for('main.login') }}" autocomplete="off">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+
+<p class="center">
+  {{ form.codename(id="login-with-existing-codename", class="codename-box", autocomplete="off", placeholder=gettext('Enter your codename'), autofocus=True) }}
+  <br>
+  {% for error in form.codename.errors %}
+    <span class="form-validation-error">{{ error }}</span>
+  {% endfor %}
+</p>
+
+<div class="pull-right">
+  <button type="submit" id="login">
+    {{ gettext('CONTINUE') }}
+  </button>
+  <a href="{{ url_for('main.index') }}" class="btn secondary" id="cancel">
+    <img class="icon off-hover" src="{{ url_for('static', filename='i/x_icon-button_blue.png') }}" width="9" height="11">
+    <img class="icon on-hover" src="{{ url_for('static', filename='i/x_icon-grimace_blue.png') }}" width="9" height="11">
+    {{ gettext('CANCEL') }}</a>
+</div>
+
+</form>
+{% endblock %}

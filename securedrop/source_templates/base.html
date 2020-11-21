@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="{{ g.html_lang }}" dir="{{ g.text_direction }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UpTechAfrica | {{ gettext('Whistleblower Protection') }}</title>
+
+    <link rel="stylesheet" href="/static/css/source.css">
+    <link rel="icon" type="image/png" href="/static/i/favicon.png">
+    {% block extrahead %}{% endblock %}
+  </head>
+  <body id="source-index">
+    <div id="js-warning" class="warning"><img src="{{ url_for('static', filename='i/font-awesome/white/exclamation-circle.svg') }}" height="12" alt="warning icon">&nbsp; {{ gettext('Your Tor Browser\'s <a id="disable-js" href=""><strong>Security Level</strong></a> is too low. Use the <img src="{icon}" alt="shield icon"> &nbsp;button in your browser’s toolbar to change it.').format(icon=url_for("static", filename="i/font-awesome/white/guard.svg"))  }} </div>
+    <div id="use-tor-browser" class="warning">{{ gettext('<strong>It is recommended to use Tor Browser to access SecureDrop:</strong> <a id="recommend-tor" href="{tor_browser_url}">Learn how to install it</a>, or ignore this warning to continue.').format(tor_browser_url=url_for('info.recommend_tor_browser')) }} <img id="use-tor-browser-close" class="close" src="{{ url_for('static', filename='i/font-awesome/times-white.png') }}" width="12" height="12"></div>
+    <div id="orfox-browser" class="warning">{{ gettext('<strong>It is recommended you use the desktop version of Tor Browser to access SecureDrop, as Orfox does not provide the same level of security and anonymity as the desktop version.</strong> <a id="recommend-tor" href="{tor_browser_url}">Learn how to install it</a>, or ignore this warning to continue.').format(tor_browser_url=url_for('info.recommend_tor_browser')) }} <img id="orfox-browser-close" class="close" src="{{ url_for('static', filename='i/font-awesome/times-white.png') }}" width="12" height="12"></div>
+
+    {% include 'banner_warning_flashed.html' %}
+
+    <div class="content">
+      <div class="container">
+        {% block header %}
+        <div id="header">
+          <a href="{% if 'logged_in' in session %}{{ url_for('main.lookup') }}{% else %}{{ url_for('main.index') }}{% endif %}" class="no-bottom-border">
+            <img src="{{ url_for('main.select_logo') }}" class="logo small" alt="{{ gettext('Logo Image') }}" width="250">
+          </a>
+          {% include 'locales.html' %}
+        </div>
+        {% endblock %}
+
+        <div class="panel selected">
+          {% if 'logged_in' in session %}
+            <a href="{{ url_for('main.logout') }}" class="btn pull-right" id="logout">{{ gettext('LOG OUT') }}</a>
+          {% endif %}
+
+          {% if not new_user%}
+            <hr class="no-line">
+          {% endif %}
+
+          {% block body %}{% endblock %}
+
+        </div>
+      </div>
+
+      {% block footer %}
+      {% include 'footer.html' %}
+      {% endblock %}
+    </div>
+  </body>
+</html>

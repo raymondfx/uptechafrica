@@ -1,0 +1,115 @@
+---
+- name: Install OSSEC manager package.
+  apt:
+    name: securedrop-ossec-server
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: not install_local_packages
+  tags:
+    - apt
+
+- name: Copy the OSSEC GPG public key for sending encrypted alerts.
+  copy:
+    src: "{{ item }}"
+    dest: /var/ossec
+  when: item != ''
+  with_items:
+    - "{{ ossec_alert_gpg_public_key }}"
+    - "{{ journalist_alert_gpg_public_key }}"
+  tags:
+    - gpg
+
+- name: Check if GPG homedir already exists.
+  stat:
+    path: /var/ossec/.gnupg
+  register: gpg_homedir_status
+  tags:
+    - gpg
+
+- name: Ensure correct permissions on OSSEC GPG homedir if it exists.
+  file:
+    state: directory
+    path: /var/ossec/.gnupg
+    mode: "0700"
+    owner: ossec
+    group: "{{ ossec_group }}"
+  when: gpg_homedir_status.stat.exists
+  tags:
+    - gpg
+
+- name: Check if .gpg files have been created yet in the GPG homedir.
+  stat:
+    path: "/var/ossec/.gnupg/{{ item }}"
+  with_items: "{{ gpg_keyring_files }}"
+  register: gpg_keyring_status
+  tags:
+    - gpg
+
+- name: Ensure correct permissions on contents of OSSEC GPG homedir.
+  file:
+    state: file
+    path: "/var/ossec/.gnupg/{{ item.item }}"
+    mode: "0600"
+    owner: ossec
+    group: "{{ ossec_group }}"
+  with_items: "{{ gpg_keyring_status.results }}"
+  when: item.stat.exists
+  tags:
+    - gpg
+
+- name: Add the OSSEC GPG public key to the OSSEC manager keyring.
+  # multiline format for command module, since this is a long command
+  command: >
+    gpg
+    --homedir /var/ossec/.gnupg
+    --import /var/ossec/{{ item }}
+  become: yes
+  become_user: "{{ ossec_group }}"
+  register: add_ossec_gpg_key_result
+  changed_when: "'imported: 1' in add_ossec_gpg_key_result.stderr"
+  when: item != ''
+  with_items:
+    - "{{ ossec_alert_gpg_public_key }}"
+    - "{{ journalist_alert_gpg_public_key }}"
+  tags:
+    - gpg
+
+- name: Copy script for sending GPG-encrypted OSSEC alerts.
+  template:
+    src: send_encrypted_alarm.sh
+    dest: /var/ossec/send_encrypted_alarm.sh
+    mode: "0550"
+    owner: root
+    group: ossec
+  tags:
+    - procmail
+    - permissions
+
+- name: Copy script for formatting journalist submission
+  copy:
+    src: process_submissions_today.sh
+    dest: /var/ossec/process_submissions_today.sh
+    mode: "0550"
+    owner: root
+    group: ossec
+  tags:
+    - procmail
+    - permissions
+
+- name: Create OSSEC manager SSL key.
+  command: openssl genrsa -out /var/ossec/etc/sslmanager.key 4096
+  args:
+    creates: /var/ossec/etc/sslmanager.key
+  tags:
+    - ossec_auth
+
+- name: Create OSSEC manager SSL certificate.
+  command: >
+    openssl req -new -x509 -batch
+    -subj "/CA=AU/ST=Some-State/locality=city/O=Internet Widgits Pty Ltd/commonName=mon/organizationUnitName=section/emailAddress=admin@localhost"
+    -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 365
+  args:
+    creates: /var/ossec/etc/sslmanager.cert
+  tags:
+    - ossec_auth

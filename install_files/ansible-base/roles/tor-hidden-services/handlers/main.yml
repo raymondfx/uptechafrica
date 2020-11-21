@@ -1,0 +1,3 @@
+---
+- name: restart tor
+  include_tasks: "{{ role_path }}/handlers/restart-tor-carefully.yml"

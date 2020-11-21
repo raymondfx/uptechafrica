@@ -1,0 +1,8 @@
+---
+# os-prober is causing freezing during kernel packaging story under GCE
+# not sure why exactly but its not functionally needed so lets disable in CI
+# ultimately we should squash this divergence problem
+- name: Disable os-prober under GCE
+  file:
+    path: /usr/bin/os-prober
+    mode: 0644

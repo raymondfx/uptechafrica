@@ -1,0 +1,242 @@
+@import base
+@import source_index
+@import modules/visually-hidden
+@import modules/menu
+
++base_rules
+
++source_index_rules
+
+.grid
+  margin: 0 auto
+  max-width: 921px
+  margin-top: 60px
+
+@media only screen and (max-width: 768px)
+  .grid
+    margin-top: 30px
+
+.option
+  a.btn.block
+    margin-bottom: 0px
+    width: 100%
+    display: block
+
+#codename-hint
+  background: rgba(0, 0, 0, 0.05)
+  box-sizing: border-box
+  -moz-box-sizing: border-box
+  margin-top: 5px
+  padding: 5px 10px
+  text-align: center
+  width: 80%
+
+@media only screen and (max-width: 880px)
+  #codename-hint
+    width: 100%
+
+#codename-hint-visible
+  .visible-codename
+    margin: auto
+    padding: auto
+    height: auto
+    overflow: visible
+
+  .hidden-codename
+    margin: 0
+    padding: 0
+    height: 0
+    overflow: hidden
+
+  &:target
+
+    .visible-codename
+      margin: 0
+      padding: 0
+      height: 0
+      overflow: hidden
+      border: 0
+
+    .hidden-codename
+      margin: auto
+      padding: auto
+      height: auto
+      overflow: visible
+
+input.codename-box
+  width: 100%
+  padding: 10px
+  font-weight: bold
+
+.codename
+  font-family: monospace
+  letter-spacing: 0.15em
+  font-weight: normal
+  font-size: 0.85em
+  // Direction is explicitly set to ltr until rtl wordlists
+  // are available.
+  direction: ltr
+
+#index-locales
+
+  li
+    display: inline
+
+p#codename
+  /*
+   * HACK: Firefox likes to add non-existent leading and/or trailing whitespace
+   * to <span>s, but never does it to <p>s. This hack uses a <p> for the
+   * codename so we can get the right copy behavior, and uses inline-block plus
+   * tweaks the margin to make it look like a span
+  display: inline-block
+  margin: 0
+
+#filter
+  font-family: monospace
+  padding: 5px
+  width: 250px
+
+#delete-all
+  .btn:first-child
+    display: block
+    padding: 2%
+    margin: auto
+    width: 80%
+
+  .hidden-prompt
+    margin: 0
+    padding: 0
+    height: 0
+    overflow: hidden
+    text-align: center
+
+    &:target
+      margin: auto
+      padding: auto
+      height: auto
+      overflow: visible
+
+  .danger
+    display: inline-block
+    width: 30%
+
+  .cancel
+    display: inline-block
+    width: 30%
+    background-color: $color_grey_medium
+
+    &:hover
+      color: $color_grey_medium
+      background-color: white
+
+#replies
+  .reply
+    border: 1px solid $color_grey_medium
+    text-align: left
+    margin-bottom: 1em
+    border-radius: 5px
+    position: relative
+
+    &:dir(rtl)
+      text-align: right
+
+    p
+      color: #777
+      font-style: italic
+
+    .date
+      float: right
+      background-color: $color_grey_medium
+      color: #ffffff
+      font-size: 10px
+      font-weight: bold
+      padding: 5px
+
+    a.delete
+      float: right
+      padding: 5px
+      background-color: inherit
+      color: $color_urgent_coral
+      font-size: 14px
+      clear: right
+      text-decoration: none
+      border: 0
+
+      &:hover
+        color: #FA6E6E
+
+
+  .confirm-prompt
+    position: absolute
+    width: 300px
+    right: 10%
+    font-size: 14px
+    background: white
+    border: 1px solid $color_grey_dark
+
+    p
+      *
+        margin: 0 2%
+        font-style: normal
+        font-size: inherit
+
+      a
+        color: inherit
+
+      button
+        margin: 0 2%
+        padding: 5px 15px
+
+h4#no-replies
+  text-align: center
+  color: $color_grey_medium
+  background: $color_grey_xlight
+  padding: 40px
+  margin: 0.5em 0
+
+p.explanation
+  text-align: left
+  color: $color_grey_dark
+
+  &:dir(rtl)
+    text-align: right
+
+  &.extended-explanation
+    font-style: italic
+    font-size: small
+    line-height: 1.4
+
+#replies blockquote
+  margin: 1em 1em
+
+p.breadcrumbs
+  text-align: left
+
+  &:dir(rtl)
+    text-align: right
+
+p#max-file-size
+  font-size: 10px
+  font-style: italic
+  margin-bottom: 0
+
+div.bubble
+  width: 415px
+  position: absolute
+  background-color: #ffffff
+  right: 28px
+  top: 10px
+  border-radius: 10px
+  border: 3px solid #666
+  padding: 10px 25px
+  display: none
+
+  .close
+    cursor: pointer
+
+#upload-icon
+  // For forcing cleaner rendering of large PNG icons to smaller sizes
+  image-rendering: -moz-crisp-edges
+  image-rendering: crisp-edges
+  margin-bottom: 10px
+  margin-top: 5px

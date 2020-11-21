@@ -1,0 +1,74 @@
+---
+### General (used by more than one role) ###
+dns_server:
+  - 8.8.8.8
+  - 8.8.4.4
+
+### Used by the common role ###
+ssh_users: "vagrant"
+
+monitor_ip: 10.0.1.3
+monitor_hostname: "{{ hostvars['mon-staging'].ansible_hostname }}"
+app_ip: 10.0.1.2
+app_hostname: "{{ hostvars['app-staging'].ansible_hostname }}"
+
+### Used by the app role ###
+# The app GPG public key has to be in the install_files/ansible-base/ or
+# install_files/ansible-base/roles/app/files/ directory
+#
+# The format of the app GPG public key can be binary or ASCII-armored,
+# the extension also doesn't matter
+#
+# The format of the app GPG fingerprint needs to be all capital letters
+# and zero spaces, e.g. "B89A29DB2128160B8E4B1B4CBADDE0C7FC9F6818"
+securedrop_app_gpg_public_key: "test_journalist_key.pub"
+securedrop_app_gpg_fingerprint: "65A1B5FF195B56353CC63DFFCC40EF1228271441"
+
+source_apache_log_location: "/var/log/apache2/source-error.log"
+apache_logging_level: "info"
+securedrop_supported_locales:
+  - el
+  - ar
+### Used by the mon role ###
+# The OSSEC alert GPG public key has to be in the install_files/ansible-base/ or
+# install_files/ansible-base/roles/app/files/ directory
+ossec_alert_gpg_public_key: "test_admin_key.pub"
+ossec_gpg_fpr: "53E1113AC1F25027BA5D475B1141E2BBB5E53711"
+ossec_alert_email: "ossec@ossec.test"
+journalist_alert_gpg_public_key: "test_admin_key.pub"
+journalist_gpg_fpr: "53E1113AC1F25027BA5D475B1141E2BBB5E53711"
+journalist_alert_email: "journalist@ossec.test"
+smtp_relay: "smtp.faketld"
+smtp_relay_port: "587"
+sasl_username: "test"
+sasl_domain: "ossec.test"
+sasl_password: "password123"
+
+# Disable Postfix in staging, so we don't hammer Google mail relays
+# with known-bad credentials.
+postfix_enable_service: no
+
+# Permit direct access for SSH in the staging environment.
+# Otherwise, all SSH connections would be forced over Tor.
+enable_ssh_over_tor: false
+
+# v3 onion services should be available in staging for testing.
+v3_onion_services: true
+
+install_local_packages: true
+
+# Don't install app-code package from the FPF apt repo, since we want to run
+# the application code directly out of the local repo. Do, however, make sure
+# the Apache service is configured correctly.
+securedrop_app_install_from_repo: False
+
+daily_reboot_time: 4 # An integer between 0 and 23
+
+# Apt-test repo is needed for testing new kernels in staging.
+apt_repo_url: "https://apt-test.freedom.press"
+
+# As of 0.7.0, we use separate repos for SecureDrop and Tor mirrors,
+# only one of which typically has a test/QA server configured.
+apt_repo_pubkey_files:
+  - apt-test-signing-key.pub
+  - fpf-signing-key.pub

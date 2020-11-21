@@ -1,0 +1,164 @@
+---
+- name: Copy the SecureDrop Application GPG public key to the Application Server.
+  copy:
+    src: "{{ securedrop_app_gpg_public_key }}"
+    dest: "{{ securedrop_data }}/"
+  tags:
+    - securedrop_config
+
+- name: Import the SecureDrop Application GPG public key to the Application Server keyring.
+  # multiline format for command module, since this is a long command
+  command: >
+    su -s /bin/bash -c 'gpg
+    --homedir {{ securedrop_data }}/keys
+    --no-default-keyring --keyring {{ securedrop_data }}/keys/pubring.gpg
+    --import {{ securedrop_data }}/{{ securedrop_app_gpg_public_key }}' {{ securedrop_user }}
+  register: gpg_app_key_import
+  changed_when: "'imported: 1' in gpg_app_key_import.stderr"
+  tags:
+    - gpg
+    - securedrop_config
+
+  # The securedrop-app-code apt package contains only 'config.py.example',
+  # not 'config.py'. This was done so the securedrop-app-code
+  # package would not overwrite the config.py on upgrades.
+  # If 'config.py' exists, then the SecureDrop application
+  # has already been configured, and most of the following tasks will be skipped.
+- name: Check whether SecureDrop config.py file already exists.
+  stat:
+    path: "{{ securedrop_code }}/config.py"
+  register: config
+  # Read-only task, so don't report as changed.
+  changed_when: false
+  tags:
+    - securedrop_config
+
+- name: Copy starter config.py template if missing.
+  command: cp {{ securedrop_code }}/config.py.example {{ securedrop_code }}/config.py
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Set ownership and permissions on config.py.
+  file:
+    dest: "{{ securedrop_code }}/config.py"
+    owner: "{{ securedrop_user }}"
+    group: "{{ securedrop_user }}"
+    mode: "0600"
+  tags:
+    - permissions
+    - securedrop_config
+
+# Note: we can also use register with with_items to cut down on repetition
+# here. See
+# http://docs.ansible.com/playbooks_loops.html#using-register-with-a-loop
+
+- name: Generate 32-byte value for "source secret key".
+  shell: "head -c 32 /dev/urandom | base64"
+  register: source_secret_key
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Add 32-byte value for "source secret key" to config.py.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    regexp: "source_secret_key"
+    line: "    SECRET_KEY = '{{ source_secret_key.stdout}}'"
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Generate 32-byte value for "journalist secret key".
+  shell: "head -c 32 /dev/urandom | base64"
+  register: journalist_secret_key
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Add 32-byte value for "journalist secret key" to config.py.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    regexp: "journalist_secret_key"
+    line: "    SECRET_KEY = '{{ journalist_secret_key.stdout }}'"
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Generate 32-byte value for "scrypt id pepper".
+  shell: "head -c 32 /dev/urandom | base64"
+  register: scrypt_id_pepper
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Add 32-byte value for "scrypt id pepper" to config.py.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    regexp: "scrypt_id_pepper"
+    line: "SCRYPT_ID_PEPPER = '{{ scrypt_id_pepper.stdout }}'"
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Generate 32-byte value for "scrypt gpg pepper".
+  shell: "head -c 32 /dev/urandom | base64"
+  register: scrypt_gpg_pepper
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Add 32-byte value for "scrypt gpg pepper" to config.py.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    regexp: "scrypt_gpg_pepper"
+    line: "SCRYPT_GPG_PEPPER = '{{ scrypt_gpg_pepper.stdout }}'"
+  when: not config.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Declare Application GPG fingerprint in config.py.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    regexp: "^JOURNALIST_KEY = "
+    line: "JOURNALIST_KEY = '{{ securedrop_app_gpg_fingerprint }}'"
+  tags:
+    - gpg
+    - securedrop_config
+
+- name: Check whether sqlite database exists.
+  stat:
+    path: "{{ securedrop_data }}/db.sqlite"
+  register: db
+  # Read-only task, so don't report changed.
+  changed_when: false
+  tags:
+    - database
+    - securedrop_config
+
+- name: Initialize sqlite database.
+  shell: './manage.py init-db --user {{ securedrop_user }}'
+  args:
+    chdir: '{{ securedrop_code }}'
+  when: not db.stat.exists
+  tags:
+    - database
+    - securedrop_config
+
+- name: Add DEFAULT_LOCALE to config.py if missing.
+  lineinfile:
+    dest: "{{ securedrop_code }}/config.py"
+    line: "DEFAULT_LOCALE = '{{ securedrop_default_locale }}'"
+    regexp: "^DEFAULT_LOCALE"
+  when: db.stat.exists
+  tags:
+    - securedrop_config
+
+- name: Update SUPPORTED_LOCALES in config.py
+  blockinfile:
+    content: "SUPPORTED_LOCALES = {{ securedrop_supported_locales + ['en_US'] }}"
+    path: "{{ securedrop_code }}/config.py"
+    marker: "# {mark} subset of the available locales that will be proposed to the user"
+  when: securedrop_supported_locales is defined
+  tags:
+    - securedrop_config

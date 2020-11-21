@@ -1,0 +1,57 @@
+---
+- name: Remove Tor project GPG signing key.
+  apt_key:
+    state: absent
+    id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
+  tags:
+    - apt
+    - tor
+
+- name: Remove Tor apt repo, so FPF repo is used.
+  file:
+    path: /etc/apt/sources.list.d/tor_apt_freedom_press.list
+    state: absent
+  tags:
+    - apt
+    - tor
+
+# Remove official Tor apt repo key, so only the SecureDrop Release
+# Signing Key is used, for the FPF tor apt mirror
+- name: Install Tor and Tor keyring packages.
+  apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - name: tor
+      state: present
+    - name: deb.torproject.org-keyring
+      state: absent
+  tags:
+    - apt
+    - tor
+
+- name: Extract tor version
+  shell: |
+    apt-cache policy tor | sed -e 's/^\s*Installed:\ \(\S*\)/\1/g;tx;d;:x'
+  changed_when: false
+  register: extract_tor_version
+
+# Ubuntu upstream repositories serve a version of tor that is very old. Since
+# FPF apt servers host this same package, let's ensure that the FPF-provided
+# Tor package is installed by checking we are using a recent version.
+
+- name: Ensure correct Tor version installed.
+  assert:
+    that: extract_tor_version.stdout is version('0.3.4.9', '>=')
+    fail_msg: "Tor package was not found on FPF apt server."
+
+- name: Dump Tor version to file (for reporting)
+  copy:
+    dest: "{{ playbook_dir }}/../../.tor_version"
+    content: "{{ extract_tor_version.stdout }}"
+  delegate_to: localhost
+  run_once: true
+  become: "no"
+  when: "'amazon' in ansible_product_version"

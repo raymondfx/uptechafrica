@@ -1,0 +1,140 @@
+=button
+  button, a.btn, .btn
+    background: $color_button_blue
+    box-sizing: border-box
+    -moz-box-sizing: border-box
+    padding: 10px 25px
+    margin: 2px auto
+    border: 1px solid transparent
+    color: white
+    font-size: .8em
+    cursor: pointer
+    text-align: center
+    text-decoration: none
+    font-weight: bold
+    font-size: .8em
+    &:not([lang=ar])
+      letter-spacing: 0.2em
+    &:lang(ar)
+      letter-spacing: 0em
+
+  button
+    &.starred
+      color: orange
+
+      &:hover
+        color: #FFC5AD
+        border: none
+
+    &.un-starred
+      color: lightgray
+
+      &:hover
+        color: lightsalmon
+        border: none
+
+    &.button-star:focus
+      outline: 0
+
+  button
+    &.plain
+      background: none
+      color: $color_button_blue
+
+      &:hover
+        background: none
+        color: $color_grimace_blue
+        border: 1px solid transparent
+
+    &:hover
+      background: $color_grimace_blue
+      color: white
+      border: 1px solid  $color_grimace_blue
+
+    &.delete-user
+      padding: 0
+
+
+  .btn
+    &.small
+      font-size: small
+      padding: 3px 10px
+
+    &.secondary
+      background: white
+      color: $color_button_blue
+      border: 2px solid $color_button_blue
+      margin-left: 10px
+      padding: 10px 20px
+
+    &.secondary:hover
+      background: white
+      color: $color_grimace_blue
+      border: 2px solid $color_grimace_blue
+
+    &.index
+      display: block
+      position: absolute
+      bottom: 8%
+      left: 8%
+      right: 8%
+
+  button.block, a.btn.block
+    text-decoration: none
+    min-width: 250px
+    margin-bottom: 20px
+
+  button.small, a.btn.small
+    font-size: small
+    padding: 3px 10px
+    font-weight: normal
+    letter-spacing: 0
+
+  a.btn:hover, .btn:hover
+    background: $color_grimace_blue
+    color: white
+
+  button.danger, a.danger, .btn.danger
+    color: $color_urgent_coral
+    background: white
+    border: 1px solid $color_urgent_coral
+
+  button.danger:hover, a.btn.danger:hover, .btn.danger:hover
+    background: $color_urgent_coral
+    border: 1px solid $color_urgent_coral
+    color: white
+
+  .option a.btn.block
+    margin-bottom: 0px
+    width: 100%
+    display: block
+
+  .full-width
+    width: 100%
+
+  a > img.on-hover, button img.on-hover
+    display: none
+
+  a:hover > img.off-hover, button:hover img.off-hover
+    display: none
+
+  a:hover > img.on-hover, button:hover img.on-hover
+    display: inline
+
+  a > img.icon, button > img.icon
+    vertical-align: middle
+    margin-right: 3px
+    margin-bottom: 2px
+    opacity: .9
+
+  // The source star icon must not inherit the vertical alignment of other button icons
+  button > img.icon-star-source
+    margin-right: 3px
+
+  .button-star
+    padding: 0
+    border: none
+
+  .btn--space
+    margin-bottom: 5px
+    margin-left: 5px

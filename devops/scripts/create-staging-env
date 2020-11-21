@@ -1,0 +1,39 @@
+#!/bin/bash
+# Wrapper script to determine which VM driver is appropriate for the staging
+# environment, given the host OS and available tooling. Supports:
+#
+#   * VirtualBox (the default)
+#   * Libvirt/KVM
+#   * Qubes (via Admin API)
+#
+# Set the VAGRANT_DEFAULT_PROVIDER env var to override autodetection.
+#
+# Defaults to `converge` action - override with MOLECULE_ACTION env var
+
+set -e
+set -o pipefail
+
+. ./devops/scripts/boot-strap-venv.sh
+
+securedrop_staging_scenario="$(./devops/scripts/select-staging-env "${1}")"
+
+if [ -z "$TEST_DATA_FILE" ]
+then
+    EXTRA_ANSIBLE_ARGS=()
+else
+    if [ "${MOLECULE_ACTION:-converge}" = 'converge' ]
+    then
+        EXTRA_ANSIBLE_ARGS=(-- --extra-vars test_data_file"=""${TEST_DATA_FILE}")
+    fi
+fi
+
+printf "Creating staging environment via '%s'...\\n" "${securedrop_staging_scenario}"
+
+# Run it!
+virtualenv_bootstrap
+# Are we in CI? Then lets do full testing post install!
+if [ "$USER" = "sdci" ]; then
+    molecule test -s "${securedrop_staging_scenario}"
+else
+    molecule "${MOLECULE_ACTION:-converge}" -s "${securedrop_staging_scenario}" "${EXTRA_ANSIBLE_ARGS[@]}"
+fi

@@ -1,0 +1,34 @@
+---
+
+- name: restart tor service (async)
+  shell: sleep 5 && service tor restart
+  async: 3000
+  poll: 0
+
+
+# It's critical that we eliminate existing SSH connections, otherwise Ansible
+# will try to reuse the stale ControlPersist files, which no longer have an
+# active socket, causing a connection timeout, and halting execution of the
+# playbook with a cryptic message.
+- name: Clear out SSH sessions, to prevent reuse of stale ControlPersist file.
+  local_action:
+    module: file
+    args:
+      path: /home/amnesia/.ansible/cp
+      state: absent
+  run_once: yes
+  become: no
+
+- name: Waiting for SSH connection (slow)...
+  local_action: wait_for
+  args:
+    host: "{{ remote_host_ref|default(ansible_host) }}"
+    port: "{{ ansible_port|default(ansible_port|default(22)) }}"
+    delay: 30
+    search_regex: OpenSSH
+    state: started
+  become: no
+
+- name: Refresh ansible local facts
+  setup:
+    filter: ansible_local

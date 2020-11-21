@@ -1,0 +1,38 @@
+---
+- name: Copy sudoers file.
+  copy:
+    src: sudoers
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: "0440"
+    backup: yes
+    validate: "visudo -cf %s"
+  register: sudoers_st
+  tags:
+    - users
+    - sudoers
+
+- name: Create shell accounts for SecureDrop admins.
+  user:
+    name: "{{ item }}"
+    shell: /bin/bash
+    groups: sudo,ssh
+  with_items: "{{ ssh_users }}"
+  tags:
+    - users
+    - sudoers
+
+# Backwards-compatibility. Previously, the SecureDrop bashrc additions
+# for forcing a terminal multiplexer during interactive login sessions were
+# added to ~/.bashrc for each admin user account. It's cleaner to add the
+# config lines to /etc/profile.d, so all accounts get them by default.
+- name: Clean up local bashrc config for admin accounts.
+  lineinfile:
+    dest: /home/{{ item }}/.bashrc
+    line: '. /etc/bashrc.securedrop_additions'
+    state: absent
+  with_items: "{{ ssh_users }}"
+  tags:
+    - users
+    - environment

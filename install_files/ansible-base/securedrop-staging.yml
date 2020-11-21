@@ -1,0 +1,139 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Scrape build directory
+  hosts: localhost
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  tasks:
+    - name: Establish list of files in build/
+      find:
+        paths: "../../build/{{ securedrop_staging_install_target_distro }}"
+      register: search_deb_results
+
+    - set_fact:
+        expected_debs: "{{hostvars['app-staging']['local_deb_packages'] + hostvars['mon-staging']['local_deb_packages']}}"
+        found_debs: "{{ search_deb_results.files | map(attribute='path') | list }}"
+        ci_builder: "{{ ansible_user_id }}"
+
+    - name: Fail if package is missing from build dir
+      fail:
+        msg: "run 'make build-debs' - ../../build/{{ securedrop_staging_install_target_distro }}/{{item}} missing"
+      when: "'../../build/'+securedrop_staging_install_target_distro+'/'+item not in found_debs"
+      with_items: "{{ expected_debs }}"
+
+- name: Prepare servers for installation
+  hosts: staging
+  environment:
+    LC_ALL: C
+  gather_facts: no
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  become: yes
+  roles:
+    - { role: prepare-servers }
+
+- name: Extract test data
+  hosts: app-staging
+  environment:
+    LC_ALL: C
+  become: yes
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  tasks:
+    - name: Clear existing application data
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/lib/securedrop
+        - /var/www/securedrop
+      when: test_data_file is defined
+    - name: Copy test data to application server
+      synchronize:
+        src: "test-data/{{ test_data_file }}"
+        dest: /tmp/{{ test_data_file }}
+        partial: yes
+      when: test_data_file is defined
+    - name: Extract test data
+      unarchive:
+        dest: /
+        remote_src: yes
+        src: "/tmp/{{ test_data_file }}"
+        exclude: "var/lib/tor,etc/tor/torrc"
+      when: test_data_file is defined
+
+- name: Add FPF apt repository and install base packages.
+  hosts: staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: ci-tweaks
+      when: "'sdci' == hostvars['localhost']['ansible_user_id']"
+    - { role: install-fpf-repo, tags: [fpfrepo] }
+    - { role: grsecurity, when: grsecurity, tags: [grsec, grsecurity] }
+    - { role: common, tags: common }
+    - { role: tor-hidden-services, tags: tor }
+    - { role: install-local-packages, tags: [install_local_packages, rebuild],
+        when: install_local_packages }
+  become: yes
+
+- name: Configure OSSEC.
+  hosts: staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: ossec
+      tags: ossec
+  become: yes
+
+- name: Configure mailing utilities.
+  hosts: mon-staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - role: postfix
+      tags: postfix
+  become: yes
+
+- name: Configure SecureDrop Application Server.
+  hosts: app-staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - { role: app, tags: app }
+    - { role: app-test, tags: app-test }
+  become: yes
+
+  # Set iptables rules with exemptions for staging that permit direct access for SSH.
+  # The overrides that permit direct access are managed in group_vars/staging.yml,
+  # and default false in production environments, in order to force SSH traffic over Tor.
+- name: Configure host firewalls (with direct access for staging).
+  hosts: staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  roles:
+    - { role: restrict-direct-access, tags: [ common, restrict-direct-access ] }
+  become: yes
+
+- name: Reboot Application and Monitor Servers.
+  hosts: staging
+  environment:
+    LC_ALL: C
+  max_fail_percentage: 0
+  any_errors_fatal: yes
+  tasks:
+    - name: Reboot using generic module
+      include_tasks: "tasks/reboot.yml"
+  become: yes

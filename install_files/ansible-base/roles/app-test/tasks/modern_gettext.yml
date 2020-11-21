@@ -1,0 +1,7 @@
+---
+- name: Install gettext
+  apt:
+    name: gettext
+    state: latest
+  tags:
+    - apt

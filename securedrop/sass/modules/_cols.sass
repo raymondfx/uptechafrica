@@ -1,0 +1,75 @@
+=cols
+  #cols
+    padding: 0
+
+    li.source
+      border-bottom: 1px solid #ddd
+      padding: 6px
+      text-align: left
+
+      &.unread
+        background: white
+
+      &.read
+        background: $color_grey_xlight
+
+      &:dir(rtl)
+        text-align: right
+
+      &:first-child
+        border-top: 1px solid #ddd
+
+      .date
+        float: right
+        &:dir(rtl)
+          float: left
+        color: #7d7d7d
+        font-size: 10px
+        font-weight: bold
+        padding: 5px
+        margin: 5px
+
+      .designation
+        display: inline-block
+        min-width: 35%
+
+        a
+          color: #333
+          font-weight: bold
+          margin: 5px
+          display: inline-block
+
+      .code-name
+        text-decoration: none
+        border: 0
+
+        &.read
+          font-weight: normal
+          color: $color_grimace_blue
+        &.unread
+          font-weight: bold
+          color: $color_button_blue
+
+        &:hover
+          color: $color_securedrop_blue
+
+      .submission-count
+        display: inline-block
+
+        span
+          padding: 3px
+          margin-right: 5px
+          font-size: 0.9em
+          color: #3d3d3d
+
+          &.unread
+            border: 0
+
+      img.icon-drop
+        margin-bottom: -2px
+        margin-right: 2px
+
+      input
+        vertical-align: middle
+        margin-bottom: 2px
+
