@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/securedrop/static/i/logo.png" width="175" height="157">
+  <img src="/securedrop/static/i/logo.png" width="175" height="120">
 </p>
 
 ## How to Install UpTechAfrica
