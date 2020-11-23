@@ -37,5 +37,14 @@ The credentials to login are printed in the Terminal.
 ![Alt text](organisation.png?raw=true "Organisation")
 
 
+## Decrypting of Messages
+We recommend using Tails Operating system , its a portable operating system
+that protects against surveillance and censorship.
+
+Boot a USB disk with Tails and use it to access the messages
+
+![Alt text](tails.png?raw=true "Tails")
+
+
 
 
