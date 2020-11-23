@@ -14,11 +14,13 @@ cd uptechafrica
 make dev
 ```
 ## UpTechAfrica Whistleblower Interface
+Whistleblower interface on `127.0.0.1:8080`
 
 ![Alt text](whistleblower.png?raw=true "Whistleblower")
 
 
 ## UpTechAfrica Organisation Interface
+Admin/journalist interface on `127.0.0.1:8081`
 ![Alt text](organisation.png?raw=true "Organisation")
 
 ## Developer Quickstart
