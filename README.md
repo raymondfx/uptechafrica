@@ -5,7 +5,12 @@
 ## Google Slide Presentation
 
 Google Slides Presentation    https://docs.google.com/presentation/d/1CpIUT4XsVqSVjscQvQEbTajm-Is8KLvTGO01f5PW5sE/edit?usp=sharing
+## How UpTechAfrica Works
+Provides Secure , Anonymous whistleblowing platform with an incentive to encourage reporting of issues
 
+1. Whistlblower - Creates Blockchain wallet and submits encryptred messages without revealing identity
+
+2. Organisation - Receives and Decrypt information recieved
 ## How to Install UpTechAfrica
 ```
 cd uptechafrica
