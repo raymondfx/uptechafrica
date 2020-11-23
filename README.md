@@ -2,6 +2,10 @@
   <img src="/securedrop/static/i/logo.png" width="175" height="120">
 </p>
 
+## Google Slide Presentation
+
+[Google Slides Presentation]    (https://docs.google.com/presentation/d/1CpIUT4XsVqSVjscQvQEbTajm-Is8KLvTGO01f5PW5sE/edit)
+
 ## How to Install UpTechAfrica
 ```
 cd uptechafrica
