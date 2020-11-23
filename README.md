@@ -4,7 +4,7 @@
 
 ## Google Slide Presentation
 
-[Google Slides Presentation]    (https://docs.google.com/presentation/d/1CpIUT4XsVqSVjscQvQEbTajm-Is8KLvTGO01f5PW5sE/edit)
+[Google Slides Presentation]    https://docs.google.com/presentation/d/1CpIUT4XsVqSVjscQvQEbTajm-Is8KLvTGO01f5PW5sE
 
 ## How to Install UpTechAfrica
 ```
