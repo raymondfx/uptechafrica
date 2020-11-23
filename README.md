@@ -16,16 +16,10 @@ make dev
 ## UpTechAfrica Whistleblower Interface
 
 ![Alt text](whistleblower.png?raw=true "Whistleblower")
-<p align="center">
-  <img src="Whistleblower.png" width="175" height="120">
-</p>
 
 
-## UpTechAfrica Whistleblower Interface
-
-<p align="center">
-  <img src="Organisation.png" width="175" height="120">
-</p>
+## UpTechAfrica Organisation Interface
+![Alt text](organisation.png?raw=true "Organisation")
 
 ## Developer Quickstart
 
