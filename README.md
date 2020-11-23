@@ -16,9 +16,7 @@ make dev
 ## How to Use UpTechAfrica
 
 
-## How to Contribute to SecureDrop
 
-See our [contribution page](CONTRIBUTING.md)
 
 ## Developer Quickstart
 
