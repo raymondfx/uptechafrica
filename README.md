@@ -12,6 +12,7 @@ Provides Secure , Anonymous whistleblowing platform with an incentive to encoura
 
 2. Organisation - Receives and Decrypt information recieved
 ## How to Install UpTechAfrica
+Ensure you have Docker installed and:
 ```
 cd uptechafrica
 ```
@@ -19,6 +20,7 @@ cd uptechafrica
 make dev
 ```
 ## UpTechAfrica Whistleblower Interface
+
 Whistleblower interface on `127.0.0.1:8080`
 
 ![Alt text](whistleblower.png?raw=true "Whistleblower")
@@ -26,16 +28,11 @@ Whistleblower interface on `127.0.0.1:8080`
 
 ## UpTechAfrica Organisation Interface
 Admin/journalist interface on `127.0.0.1:8081`
+
+The credentials to login are printed in the Terminal.
+
 ![Alt text](organisation.png?raw=true "Organisation")
 
-## Developer Quickstart
 
-Ensure you have Docker installed and:
-
-```
-make dev
-```
-
-This will start the Whistleblower interface on `127.0.0.1:8080` and the Admin/journalist interface on `127.0.0.1:8081`. The credentials to login are printed in the Terminal.
 
 
