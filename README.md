@@ -26,6 +26,8 @@ make dev
 
 Whistleblower interface on `127.0.0.1:8080`
 
+Generate passphrase and Bitcoin wallet Keys and print or save them somewhere secure
+
 ![Alt text](whistleblower.png?raw=true "Whistleblower")
 
 
