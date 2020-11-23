@@ -22,6 +22,26 @@ cd uptechafrica
 ```
 make dev
 ```
+
+Setting up Hyperledger Ledger
+Organisation/Journalist
+```
+git clone https://github.com/raymondfx/hyperledger-ledger.git
+```
+```
+cd hyperledger-ledger/demo
+```
+```
+LEDGER_URL=http://dev.greenlight.bcovrin.vonx.io ./run_demo journalist
+```
+Whitstleblower 
+```
+cd hyperledger-ledger/demo
+```
+```
+LEDGER_URL=http://dev.greenlight.bcovrin.vonx.io ./run_demo whistleblower
+```
+
 ## UpTechAfrica Whistleblower Interface
 
 Whistleblower interface on `127.0.0.1:8080`
