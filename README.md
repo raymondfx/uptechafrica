@@ -3,7 +3,9 @@
 </p>
 
 ## How to Install UpTechAfrica
+```
 cd uptechafrica
+```
 ```
 make dev
 ```
