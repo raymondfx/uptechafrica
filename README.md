@@ -13,10 +13,9 @@ cd uptechafrica
 ```
 make dev
 ```
-## How to Use UpTechAfrica
+## UpTechAfrica Whistleblower Interface
 
-
-
+![Alt text](whistleblower.png?raw=true "Whistleblower")
 
 ## Developer Quickstart
 
