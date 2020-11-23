@@ -3,13 +3,12 @@
 </p>
 
 ## How to Install UpTechAfrica
-
-See the [Installation Guide](https://docs.securedrop.org/en/stable/#installtoc).
-
+cd uptechafrica
+```
+make dev
+```
 ## How to Use UpTechAfrica
 
-* [As a source](https://docs.securedrop.org/en/stable/source.html)
-* [As a journalist](https://docs.securedrop.org/en/stable/journalist.html)
 
 ## How to Contribute to SecureDrop
 
